@@ -1,4 +1,4 @@
-package room
+package sdk
 
 import (
 	"context"
@@ -7,11 +7,18 @@ import (
 	lksdk "github.com/livekit/server-sdk-go/v2"
 )
 
+type RoomSdkService interface {
+	CreateRoom(ctx context.Context, name string) (*livekit.Room, error)
+	ListRooms(ctx context.Context) ([]*livekit.Room, error)
+	DeleteRoom(ctx context.Context, name string) error
+	RoomExists(ctx context.Context, name string) (bool, error)
+}
+
 type roomServiceImpl struct {
 	client *lksdk.RoomServiceClient
 }
 
-func NewRoomService(client *lksdk.RoomServiceClient) RoomService {
+func NewRoomSdkService(client *lksdk.RoomServiceClient) RoomSdkService {
 	return &roomServiceImpl{client: client}
 }
 

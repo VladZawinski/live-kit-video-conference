@@ -1,11 +1,15 @@
-package token
+package sdk
+
+type TokenSdkService interface {
+	GenerateJoinToken(identity string, roomName string, isPublisher bool) (string, error)
+}
 
 type tokenServiceImpl struct {
 	apiKey    string
 	secretKey string
 }
 
-func NewTokenService(apiKey, secretKey string) TokenService {
+func NewTokenSdkService(apiKey, secretKey string) TokenSdkService {
 	return &tokenServiceImpl{
 		apiKey:    apiKey,
 		secretKey: secretKey,
