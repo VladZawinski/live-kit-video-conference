@@ -23,8 +23,8 @@ func NewUserRepository(db *sql.DB) UserRepository {
 }
 
 func (r *userRepositoryImpl) Create(user *model.User) error {
-	query := `INSERT INTO user (username, password_hash) VALUES (?, ?)`
-	result, err := r.DB.Exec(query, user.Username, user.PasswordHash)
+	query := `INSERT INTO user (username) VALUES (?, ?)`
+	result, err := r.DB.Exec(query, user.Username)
 	if err != nil {
 		return err
 	}
@@ -37,10 +37,10 @@ func (r *userRepositoryImpl) Create(user *model.User) error {
 }
 
 func (r *userRepositoryImpl) GetByID(id int) (*model.User, error) {
-	query := `SELECT id, username, password_hash, created_at FROM user WHERE id = ?`
+	query := `SELECT id, username, created_at FROM user WHERE id = ?`
 	row := r.DB.QueryRow(query, id)
 	user := &model.User{}
-	err := row.Scan(&user.ID, &user.Username, &user.PasswordHash, &user.CreatedAt)
+	err := row.Scan(&user.ID, &user.Username, &user.CreatedAt)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, nil
@@ -51,7 +51,7 @@ func (r *userRepositoryImpl) GetByID(id int) (*model.User, error) {
 }
 
 func (r *userRepositoryImpl) GetAll() ([]*model.User, error) {
-	query := `SELECT id, username, password_hash, created_at FROM user`
+	query := `SELECT id, username, created_at FROM user`
 	rows, err := r.DB.Query(query)
 	if err != nil {
 		return nil, err
@@ -61,7 +61,7 @@ func (r *userRepositoryImpl) GetAll() ([]*model.User, error) {
 	var users []*model.User
 	for rows.Next() {
 		user := &model.User{}
-		err := rows.Scan(&user.ID, &user.Username, &user.PasswordHash, &user.CreatedAt)
+		err := rows.Scan(&user.ID, &user.Username, &user.CreatedAt)
 		if err != nil {
 			return nil, err
 		}
