@@ -7,5 +7,6 @@ type Room struct {
 	Name        string
 	Description string
 	OwnerID     int
+	SID         string
 	CreatedAt   time.Time
 }

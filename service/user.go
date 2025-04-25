@@ -6,22 +6,27 @@ import (
 	"github.com/live-kit-video-conference/sdk"
 )
 
-type UserService struct {
+type UserService interface {
+	CreateUser(username string, password string) error
+	GetJoinToken(username string, roomName string, isPublisher bool) (string, error)
+}
+
+type userService struct {
 	User     repository.UserRepository
 	TokenSdk sdk.TokenSdkService
 }
 
 func NewUserService(userRepository repository.UserRepository) UserService {
-	return UserService{User: userRepository}
+	return userService{User: userRepository}
 }
 
-func (s UserService) CreateUser(username string, password string) error {
+func (s userService) CreateUser(username string, password string) error {
 	user := model.User{
 		Username: username,
 	}
 	return s.User.Create(&user)
 }
 
-func (s UserService) GetJoinToken(username string, roomName string, isPublisher bool) (string, error) {
+func (s userService) GetJoinToken(username string, roomName string, isPublisher bool) (string, error) {
 	return s.TokenSdk.GenerateJoinToken(username, roomName, isPublisher)
 }

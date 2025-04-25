@@ -9,7 +9,6 @@ import (
 
 type JoinAsGuestRequest struct {
 	Username string `json:"username"`
-	Password string `json:"password"`
 }
 
 type GetJoinTokenRequest struct {
@@ -21,13 +20,19 @@ type AuthHandler struct {
 	UserService service.UserService
 }
 
+func NewAuthHandler(userService service.UserService) AuthHandler {
+	return AuthHandler{
+		UserService: userService,
+	}
+}
+
 func (h AuthHandler) JoinAsGuest(w http.ResponseWriter, r *http.Request) {
 	var req JoinAsGuestRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "Invalid request", http.StatusBadRequest)
 		return
 	}
-	err := h.UserService.CreateUser(req.Username, req.Password)
+	err := h.UserService.CreateUser(req.Username, "")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusUnauthorized)
 		return

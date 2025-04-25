@@ -1,11 +1,17 @@
 package main
 
 import (
+	"database/sql"
 	"log"
 	"net/http"
+	"os"
 
+	_ "github.com/go-sql-driver/mysql"
 	"github.com/joho/godotenv"
+	"github.com/live-kit-video-conference/api"
+	"github.com/live-kit-video-conference/repository"
 	"github.com/live-kit-video-conference/sdk"
+	"github.com/live-kit-video-conference/service"
 )
 
 func main() {
@@ -13,7 +19,15 @@ func main() {
 	if err != nil {
 		log.Fatal("Error loading env file")
 	}
-	services := sdk.InjectSdkServices()
-	log.Println(services)
+	connectionString := os.Getenv("DB_CONNECTION")
+	db, err := sql.Open("mysql", connectionString)
+	if err != nil {
+		log.Fatal(err)
+	}
+	sdkServices := sdk.InjectSdkServices()
+	repositories := repository.InjectRepository(db)
+	appServices := service.InjectAppServices(*sdkServices, *repositories)
+	api.BuildHandlers(*appServices)
 	log.Fatal(http.ListenAndServe(":8080", nil))
+	defer db.Close()
 }

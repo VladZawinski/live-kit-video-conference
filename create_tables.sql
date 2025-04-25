@@ -12,6 +12,7 @@ CREATE TABLE IF NOT EXISTS room (
     name VARCHAR(100) NOT NULL,
     description TEXT,
     owner_id INT,
+    side VARCHAR(50) NOT NULL UNIQUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (owner_id) REFERENCES user(id)
 );
