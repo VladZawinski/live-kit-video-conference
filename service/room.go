@@ -11,11 +11,23 @@ import (
 type RoomService interface {
 	CreateRoom(room *CreateRoomModel) (*model.Room, error)
 	ListRoom() ([]*model.Room, error)
+	GetRoomByID(id int) (*model.Room, error)
 }
 
 type roomService struct {
 	RoomSdk sdk.RoomSdkService
 	Room    repository.RoomRepository
+}
+
+func (r roomService) GetRoomByID(id int) (*model.Room, error) {
+	room, err := r.Room.GetByID(id)
+	if err != nil {
+		return nil, err
+	}
+	if room == nil {
+		return nil, nil
+	}
+	return room, nil
 }
 
 func (r roomService) CreateRoom(room *CreateRoomModel) (*model.Room, error) {

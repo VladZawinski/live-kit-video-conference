@@ -8,12 +8,36 @@ import (
 
 type UserService interface {
 	CreateUser(username string, password string) error
+	UserExists(username string) (bool, error)
+	GetUserByUsername(username string) (*model.User, error)
 	GetJoinToken(username string, roomName string, isPublisher bool) (string, error)
 }
 
 type userService struct {
 	User     repository.UserRepository
 	TokenSdk sdk.TokenSdkService
+}
+
+func (s userService) GetUserByUsername(username string) (*model.User, error) {
+	user, err := s.User.GetByUsername(username)
+	if err != nil {
+		return nil, err
+	}
+	if user == nil {
+		return nil, nil
+	}
+	return user, nil
+}
+
+func (s userService) UserExists(username string) (bool, error) {
+	user, err := s.User.GetByUsername(username)
+	if err != nil {
+		return false, err
+	}
+	if user == nil {
+		return false, nil
+	}
+	return true, nil
 }
 
 func NewUserService(userRepository repository.UserRepository) UserService {

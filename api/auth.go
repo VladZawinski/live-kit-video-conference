@@ -13,11 +13,12 @@ type JoinAsGuestRequest struct {
 
 type GetJoinTokenRequest struct {
 	Username string `json:"username"`
-	RoomId   int64  `json:"roomId"`
+	RoomID   int    `json:"room_id"`
 }
 
 type AuthHandler struct {
 	UserService service.UserService
+	RoomService service.RoomService
 }
 
 func NewAuthHandler(userService service.UserService) AuthHandler {
@@ -30,6 +31,15 @@ func (h AuthHandler) JoinAsGuest(w http.ResponseWriter, r *http.Request) {
 	var req JoinAsGuestRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "Invalid request", http.StatusBadRequest)
+		return
+	}
+	userExists, _ := h.UserService.UserExists(req.Username)
+	if userExists {
+		json.NewEncoder(w).Encode(ApiResponse{
+			StatusCode: 200,
+			Message:    "Join Successfully",
+			Data:       nil,
+		})
 		return
 	}
 	err := h.UserService.CreateUser(req.Username, "")
@@ -45,5 +55,21 @@ func (h AuthHandler) JoinAsGuest(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h AuthHandler) GetJoinToken(w http.ResponseWriter, r *http.Request) {
-
+	var req GetJoinTokenRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "Invalid request", http.StatusBadRequest)
+		return
+	}
+	room, _ := h.RoomService.GetRoomByID(req.RoomID)
+	user, _ := h.UserService.GetUserByUsername(req.Username)
+	token, err := h.UserService.GetJoinToken(req.Username, room.Name, room.OwnerID == user.ID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusUnauthorized)
+		return
+	}
+	json.NewEncoder(w).Encode(ApiResponse{
+		StatusCode: 200,
+		Message:    "Get Join Token Successfully",
+		Data:       token,
+	})
 }

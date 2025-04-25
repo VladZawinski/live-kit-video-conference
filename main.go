@@ -28,6 +28,8 @@ func main() {
 	repositories := repository.InjectRepository(db)
 	appServices := service.InjectAppServices(*sdkServices, *repositories)
 	api.BuildHandlers(*appServices)
+	log.Println("Server started on port 8080")
 	log.Fatal(http.ListenAndServe(":8080", nil))
 	defer db.Close()
+
 }
