@@ -2,6 +2,7 @@ package api
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 
 	"github.com/live-kit-video-conference/service"
@@ -33,6 +34,7 @@ func (h RoomHandler) CreateRoom(w http.ResponseWriter, r *http.Request) {
 		OwnerID:     roomDto.OwnerID,
 	})
 	if err != nil {
+		log.Println(err)
 		http.Error(w, "Failed to create room", http.StatusInternalServerError)
 		return
 	}
